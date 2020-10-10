@@ -51,3 +51,7 @@ MSE using Ridge Regression of our terrain data
 >figure13.png
 
 Small section of our terrain data
+
+>figure14.jpg
+
+An ideal Bias-Variance Trade-off plot (by hand, for illustration purposes)
