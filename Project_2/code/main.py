@@ -276,7 +276,7 @@ def LogisticRegression(
     np.random.seed(2)
     k = 0; l = 0; m = 0
     vari = False
-    lst = [designOrder, iters, batchSize, learn]
+    lst = [designOrder, iters, batchSize, learn, epochs]
     for i in lst:
         if hasattr(i, "__len__") == True:
             vari = True
@@ -323,7 +323,8 @@ def LogisticRegression(
     N = 1000
     x = np.sort(np.random.uniform(0,1,N))
     y = np.sort(np.random.uniform(0,1,N))
-    z = FrankeFunction(x,y)    
+    z = FrankeFunction(x,y)  
+    ploter = plt.plot
     if vari == True:
         Blst = []
         for i in array:
@@ -355,6 +356,14 @@ def LogisticRegression(
                     model = LR(X, z, Type, aFunc, iters, epochs, penalty, alpha, k, batchSize)
                     model.fitter(X_train, z_train, i)
                     Blst.append(model.B)
+                    ploter = plt.semilogx
+                elif l == 4:
+                    variable = 'Epochs'
+                    X = X_Mat(x,y,designOrder)
+                    X_train, X_test, z_train, z_test = train_test_split(X,z,test_size=0.2)
+                    model = LR(X, z, Type, aFunc, iters, i, penalty, alpha, k, batchSize)
+                    model.fitter(X_train, z_train, learn)
+                    Blst.append(model.B)
         msestore = []
         for i in range(len(array)):
             zpred4 = np.dot(X,Blst[i])
@@ -362,7 +371,7 @@ def LogisticRegression(
             msestore.append(MSE(z,zpred4))
         if plotting == True:
             plt.title('Mean-Squared-Error as a function of %s\nfrom %g to %g' %(variable, array[0], array[-1]))
-            plt.plot(array, msestore)
+            ploter(array, msestore)
             plt.xlabel('%s' %(variable))
             plt.ylabel('MSE')
             plt.show()

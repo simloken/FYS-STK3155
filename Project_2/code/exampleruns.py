@@ -1,6 +1,18 @@
 from main import TF, LogisticRegression, MNISTsolver, compareLight, soloSGD
 import numpy as np
-
+from sklearn import datasets
+from functions import X_Mat, FrankeFunction
+#usually the function don't need an input, but just in case.
+digits = datasets.load_digits()
+inputs = digits.images
+labels = digits.target
+n_inputs = len(inputs)
+inputs = inputs.reshape(n_inputs, -1)
+N = 1000
+x = np.sort(np.random.uniform(0,1,N))
+y = np.sort(np.random.uniform(0,1,N))
+z = FrankeFunction(x,y)
+X = X_Mat(x,y,5)
 
 #An example of a decent result of our custom SGD in relation to SciKit methods
 #compareLight(0.6, 300, 600, 0.9, 100)
@@ -18,3 +30,9 @@ import numpy as np
 
 #FFNN case of Regression for a variable learning rate from 10^-4 to 1.
 #TF(inputs=X, labels=z, learns=np.logspace(-4,0,5), reg=True, plotting=True)
+
+#FFNN case of Classification for one layer, 100 neurons (with plotting)
+#MNISTsolver(100, plotting=True)
+
+#Tensorflow case of Classification for one layer, 100 neurons (with plotting)
+#TF(nlayers=[100],alayers=['sig'],pens=['l2'], plotting=True)

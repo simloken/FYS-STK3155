@@ -531,6 +531,7 @@ class LR:
     def SGD(self, X, z, B, learn, iters, epochs, batch=False):
         store_cost = 1e6 #some random high number which will get replaced first epoch
         learnparam = [1,10] #learning params to customize the learning rate decay
+        storelearn = learn
         for epoch in range(epochs):
             learn *= LR.dynamicLearn(epoch, learnparam)
             B = np.zeros(X.shape[1])
@@ -538,7 +539,6 @@ class LR:
             np.random.shuffle(X) #can be shuffled for each iteration as well if you
             np.random.shuffle(z) #want truly random arrays, however this causes excessive
             for i in range(iters):#runtime bloat
-                
                 ridx = np.random.randint(len(X)-self.batchSize)
                 
                         
@@ -572,7 +572,7 @@ class LR:
     """
     def costfunc(self, X, z, B):
         P = np.dot(X,B)
-        P += self.pFunc(B)
+        P -= 0.5*self.pFunc(B)
         return MSE(z,P)
     """
     This finds our new gradient for B and some shuffled data X and z.
