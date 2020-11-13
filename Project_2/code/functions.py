@@ -377,9 +377,15 @@ class TensorFlow:
                 regtype = 'adam'
             else:
                 regtype = 'sgd'
-                for i in learns:
-                    regress = MLPRegressor(max_iter=2000, solver=regtype, learning_rate_init=i).fit(X_train,z_train)
-                    storescore.append(regress.score(X_test, z_test))
+            if self.activations[0] == 'relu':
+                a = 'relu'
+            elif self.activations[0] == 'sig':
+                a = 'logistic'
+            elif self.activations[0] == 'tanh':
+                a = 'tanh'
+            for i in learns:
+                regress = MLPRegressor(max_iter=2000, solver=regtype, learning_rate_init=i, activation='tanh').fit(X_train,z_train)
+                storescore.append(regress.score(X_test, z_test))
             return storescore
 """
     The Logistic Regression class

@@ -16,3 +16,5 @@ import numpy as np
 #Solo run using the "best" variables from functions above
 #soloSGD(10,100,100,70,o=10)
 
+#FFNN case of Regression for a variable learning rate from 10^-4 to 1.
+#TF(inputs=X, labels=z, learns=np.logspace(-4,0,5), reg=True, plotting=True)
