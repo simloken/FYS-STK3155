@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler
 import random  
  
 class FFNN_old:
-    def __init__(self, X, z, iters, learn, batchSize, Type):
+    def __init__(self, X, z, iters, learn, batchSize):
         
         
         self.X = X
@@ -15,8 +15,7 @@ class FFNN_old:
         self.model = dict(
                 W1 = np.random.randn(self.X.shape[-1], 100),
                 W2 = np.random.randn(100, self.X.shape[-1]))
-        
-        self.Type=Type
+    
         
         
     def Softmax(x):
@@ -66,20 +65,6 @@ class FFNN_old:
                 
         return model
     
-    def Momentum(self, model, X_train, z_train, gamma):
-        v = {k: np.zeros_like(v) for k, v in model.items()}
-        random.shuffle(X_train); random.shuffle(z_train)
-        for iter in range(1, self.iters+1):
-            ridx = np.random.randint(len(X_train)-self.batchSize)
-            Xbatch = X_train[ridx:ridx+self.batchSize]
-            zbatch = z_train[ridx:ridx+self.batchSize]
-            gradient = self.miniGrad(model, Xbatch, zbatch)
-            
-            for layer in gradient:
-                v[layer] = gamma*v[layer] + self.learn*gradient[layer]
-                model[layer] += v[layer]
-                
-        return model
     def step(self, model, Xbatch, zbatch):
         gradient = self.miniGrad(model, Xbatch, zbatch)
         model = model.copy()

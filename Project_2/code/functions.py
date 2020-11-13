@@ -8,6 +8,7 @@ from tensorflow.keras import optimizers             #This allows using whichever
 from tensorflow.keras import regularizers           #This allows using whichever regularizer we want (l1,l2,l1_l2)
 from tensorflow.keras.utils import to_categorical   #This allows using categorical cross entropy as the cost function
 from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPRegressor
 """
     The Feed Forward Neural Network class.
     This handles all the classification problems, namely the MNIST data.
@@ -238,8 +239,8 @@ class TensorFlow:
             activations,
             outAct,
             penalties,
-            
-            out):
+            out,
+            reg=False):
         self.neuronsLayer = neuronsLayer
         self.Type = Type
         self.activations = activations
@@ -247,6 +248,7 @@ class TensorFlow:
         self.penalties = penalties
         self.out = out
         self.multi = False
+        self.reg = reg
         if Type.lower() == 'sgd':
             self.solve = optimizers.SGD
             self.Func = 'SGD with Momentum'
@@ -333,41 +335,52 @@ class TensorFlow:
     accuracy score as an array. Used for plotting
     """
     def fitter(self, X, z, epochs, batchSize, learns, lmbds, one_return):
-        z = to_categorical(z)
-        X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
-        if one_return == False:
-            if hasattr(learns, '__len__') == False or hasattr(lmbds, '__len__') == False:
-                raise ValueError('learns and lmbds must both be array-like')
-            storage = np.zeros((len(learns), len(lmbds)), dtype=object)
-            storescore = np.zeros((storage.shape))
-            for i, learn in enumerate(learns):
-                for j, lmbd in enumerate(lmbds):
-                    
-                    Network = self.form_neural_network(learn, lmbd)
-                    Network.fit(X_train, z_train, epochs=epochs, batch_size=batchSize, verbose=0)
-                    scores = Network.evaluate(X_test, z_test)
-                    
-                    storage[i][j] = Network
-                    
-                    print("Learning rate = ", learn)
-                    print("Lambda = ", lmbd)
-                    print("Test accuracy: %.3f" % scores[1])
-                    print()
-                    storescore[i][j] = scores[1]
-            return storescore
+        if self.reg == False:
+            z = to_categorical(z)
+            X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
+            if one_return == False:
+                if hasattr(learns, '__len__') == False or hasattr(lmbds, '__len__') == False:
+                    raise ValueError('learns and lmbds must both be array-like')
+                storage = np.zeros((len(learns), len(lmbds)), dtype=object)
+                storescore = np.zeros((storage.shape))
+                for i, learn in enumerate(learns):
+                    for j, lmbd in enumerate(lmbds):
+                        
+                        Network = self.form_neural_network(learn, lmbd)
+                        Network.fit(X_train, z_train, epochs=epochs, batch_size=batchSize, verbose=0)
+                        scores = Network.evaluate(X_test, z_test)
+                        
+                        storage[i][j] = Network
+                        
+                        print("Learning rate = ", learn)
+                        print("Lambda = ", lmbd)
+                        print("Test accuracy: %.3f" % scores[1])
+                        print()
+                        storescore[i][j] = scores[1]
+                return storescore
+            else:
+                if hasattr(learns, '__len__') == True or hasattr(lmbds, '__len__') == True:
+                    raise ValueError('learns or lmbds cannot be array-likes')
+                Network = self.form_neural_network(learns, lmbds)
+                Network.fit(X_train, z_train, epochs=epochs, batch_size=batchSize, verbose=0)
+                scores = Network.evaluate(X_test, z_test)
+                storage = Network
+                
+                print("Learning rate = ", learns)
+                print("Lambda = ", lmbds)
+                print("Test accuracy: %.3f" % scores[1])
+                print()
         else:
-            if hasattr(learns, '__len__') == True or hasattr(lmbds, '__len__') == True:
-                raise ValueError('learns or lmbds cannot be array-likes')
-            Network = self.form_neural_network(learns, lmbds)
-            Network.fit(X_train, z_train, epochs=epochs, batch_size=batchSize, verbose=0)
-            scores = Network.evaluate(X_test, z_test)
-            storage = Network
-            
-            print("Learning rate = ", learns)
-            print("Lambda = ", lmbds)
-            print("Test accuracy: %.3f" % scores[1])
-            print()
-            
+            X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
+            storescore = []
+            if self.Type=='adam':
+                regtype = 'adam'
+            else:
+                regtype = 'sgd'
+                for i in learns:
+                    regress = MLPRegressor(max_iter=2000, solver=regtype, learning_rate_init=i).fit(X_train,z_train)
+                    storescore.append(regress.score(X_test, z_test))
+            return storescore
 """
     The Logistic Regression class
     This handles all regression problems, mainly when looking at our design
@@ -425,7 +438,6 @@ class LR:
         self.alpha = alpha
         self.k = k
         self.p = 0
-        
         self.batchSize = batchSize
         self.batch = False
         
@@ -554,6 +566,7 @@ class LR:
     """
     def costfunc(self, X, z, B):
         P = np.dot(X,B)
+        P += self.pFunc(B)
         return MSE(z,P)
     """
     This finds our new gradient for B and some shuffled data X and z.

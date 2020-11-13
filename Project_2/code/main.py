@@ -441,15 +441,23 @@ def LogisticRegression(
             Is False by default
             Should be True if and only if learns and lmbds are both array-likes.
             If True, returns a plot showing the accuracy for the different
-            lmbds and learns values given.   
+            lmbds and learns values given.  
+    reg : boolean
+            Is False by default,
+            if true, then returns treats it as a regression case, not classification.
+            
+            PS! This was a last minute edition, and as such, is not very flexible.
+            Apologize in advance! It works with learning rate only! Although it is very
+            sensitive and should only be in the range -10^4 to 1.
 """
-def TF(inputs,
-       labels,
+def TF(inputs=inputs,
+       labels=labels,
        Type = 'sgd',
        nlayers = [70,50,30],
        alayers = ['sig', 'sig', 'sig'],
        outa = 'sm',
        pens = ['l2', 'l2', 'l2'],
+       o=5,
        out=10,
        epochs = 100,
        batchSize = 100,
@@ -457,7 +465,8 @@ def TF(inputs,
        lmbds=np.logspace(-5,1,7),
        one_return=False,
        bestFound=False,
-       plotting=False):
+       plotting=False,
+       reg=False):
     np.random.seed(2)
     if outa.lower() == 'sm':
         outa = 'softmax'
@@ -476,10 +485,15 @@ def TF(inputs,
         learns = 1
         lmbds = 1e-4
         one_return=True
-        
-    model = TensorFlow(Type, nlayers, alayers, outa, pens, out)
+    if reg == True:
+        N = 1000
+        x = np.sort(np.random.uniform(0,1,N))
+        y = np.sort(np.random.uniform(0,1,N))
+        labels = FrankeFunction(x,y)        
+        inputs = X_Mat(x,y,o)
+    model = TensorFlow(Type, nlayers, alayers, outa, pens, out, reg)
     scores = model.fitter(inputs, labels, epochs, batchSize, learns, lmbds, one_return)
-    if one_return==False and plotting==True:
+    if one_return==False and plotting==True and reg==False:
         plt.figure()
         for i in range(scores.shape[0]):
             plt.loglog(lmbds, scores[i][:], label=r'$\eta = {}$'.format(learns[i]))
@@ -489,4 +503,33 @@ using the {} method""".format(model.Func))
         plt.xlabel(r'$\lambda$')
         plt.ylabel('Accuracy [%]')
         plt.show()
-        
+    elif one_return==False and plotting==True and reg==True:
+        plt.figure()
+        plt.semilogx(learns, scores)
+        plt.title('The R2 Score of a FFNN Regression case with a variable Learning Rate')
+        plt.xlabel('Learning rate')
+        plt.ylabel('R2 Score')
+        plt.show()
+
+"""
+This was supposed to be the FFNN Regression part, however I could never get
+it to work properly, and it would often return NaN.
+Left here for posterities sake, but not actually used.
+
+def FFNNRegression(o, learn, iters, batchSize):       
+    N = 1000
+    x = np.sort(np.random.uniform(0,1,N))
+    y = np.sort(np.random.uniform(0,1,N))
+    z = FrankeFunction(x,y)        
+    X = X_Mat(x,y,o)
+    X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
+    model = FFNN_old(X_train,z_train,iters ,learn, batchSize)
+    
+    model.SGD(model.model, X_train, z_train)
+    error = []
+    for i, x in enumerate(X_test):
+        _, prob = model.Forward(x, model.model)
+        error = MSE(z,np.dot(X,prob))
+    
+    print(error)
+"""
