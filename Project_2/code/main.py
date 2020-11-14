@@ -522,7 +522,8 @@ using the {} method""".format(model.Func))
 
 """
 This was supposed to be the FFNN Regression part, however I could never get
-it to work properly, and it would often return NaN.
+it to work properly, and it would often return NaN and/or just not work at all.
+Will look at it sometime prior to project 3, hopefully.
 Left here for posterities sake, but not actually used.
 
 def FFNNRegression(o, learn, iters, batchSize):       
