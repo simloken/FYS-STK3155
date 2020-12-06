@@ -1,13 +1,11 @@
 from functions import generateSpambaseData, string2cats
 from handlers import TF, LR, NB, DT, RF, SV, testAgainstStrings
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
 import numpy as np
+import seaborn as sns
+import pandas as pd
 import matplotlib.pyplot as plt
 
-
-
-def predictString(runs):
+def predictString(runs, spam=None, start=None, stop=None):
     
     inputs, labels = generateSpambaseData(shuffle=True)
     
@@ -21,27 +19,71 @@ def predictString(runs):
         strings[j] = string2cats(i)
         j += 1
     
-    control = [1, 1, 1, 1, 0, 0, 0]
+    if spam == True:
+        start = 0; stop = 5
+    elif spam == False:
+        start = 5; stop = 10
+    control = [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]
+    if spam != None:
+        strings = strings[start:stop]
+        control = control[start:stop]
+    if len(strings) != len(control):
+        raise ValueError('Input Strings and control labels must be same length')
+    
+    if start != None and stop != None:
+        strings = strings[start:stop]
+        control = control[start:stop]
+    elif start != None and stop == None:
+        strings = strings[start:10]
+        control = control[start:10]
+    elif start == None and stop != None:
+        strings = strings[0:stop]
+        control = control[0:stop]
     
     store = testAgainstStrings(strings, inputs, labels, runs).astype(float)
+    TFmodel = TF(inputs, labels, learns = 0.001, lmbds = 0.001, one_return=True, retModel=True)
+    TFout = TFmodel.predict(strings)
+    TFout = np.round(TFout, decimals=1)
+    
+    #what follows is an awful way of extracting predictions from TF, apologize in advance
+    predictions = np.argmax(TFout, axis=1) #get prediction column
+    TFpreds = np.zeros(len(TFout))
+    for i in range(len(TFout)):
+        TFpreds[i] = TFout[i,predictions[i]] #extract highest prediction
+    
+    finalarr = np.zeros(len(TFout))
+    j = 0
+    for i in predictions:
+        if i == 0:
+            finalarr[j] = abs(TFpreds[j] - 1) #convert to the usual
+        elif i == 1:
+            finalarr[j] = TFpreds[j]
+    
+        j += 1
+    #horror ends here
+    
+    store = np.vstack([finalarr, store])
     L = np.shape(store)[1]
     printstr = L*"{:.1f} "
     print('\nCTRL:', printstr.format(*control),'\n')
-    names = ["LR", "NB", "DT", "RF", "SV"]
-    for i in range(len(store)):
+    
+    names = ["TF", "LR", "NB", "DT", "RF", "SV"]
+    for i in range(len(names)):
         
         print("{}:  ".format(names[i]), printstr.format(*(store[i][:])))
 
 
-    #this does not work for some reason, 
-    #so I cannot compare with the predictions cast 
-    #by our Tensorflow neural network
+    store = np.vstack([control, store])
+    namesAll = ["CTRL", "TF", "LR", "NB", "DT", "RF", "SV"]
+    d2h = pd.DataFrame(store, index=namesAll)
     
-    """
-    modelList = TF(inputs, labels, retModel=True)
-    for i in modelList:
-        print(i.evaluate(strings, np.asarray(stringsLabel)))
-    """
+    fig = sns.heatmap(data=d2h, annot=True, cmap='autumn')
+    plt.yticks(rotation=0)
+    plt.xticks([])
+    bottom, top = fig.get_ylim()
+    fig.set_ylim(bottom + 0.5, top - 0.5)
+    fig.set_title('Alternative heatmap')
+    plt.show()
 
 
 def accuracies(runs, tensor=False, adjust=False):
@@ -73,7 +115,7 @@ def accuracies(runs, tensor=False, adjust=False):
                 lmbds = float(input('Please enter a lambda parameter:\n'))
                 print('')
             TF(inputs, labels, learns=learns, lmbds=lmbds, one_return=True)
-            if k == 0:
+            if k == 0 and adjust==True:
                 yesno = str(input('Would you like to re-adjust values? [y/n]\n'))
                 if yesno.lower() == 'y':
                     continue

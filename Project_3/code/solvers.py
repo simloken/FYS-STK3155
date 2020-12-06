@@ -11,8 +11,37 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import LinearSVC as SVC
 from sklearn.linear_model import LogisticRegression as LR
 import numpy as np
-from functions import MSE, R2, logsummer
-
+"""
+    The TensorFlow Class.
+    This uses tf.keras.
+    Type : string
+            The solver to use
+            Must be {'sgd', 'adagrad', 'adam', 'nadam'}
+    neuronsLayer : array-like or int
+            The amount of neurons on each layer our neural network.
+    activations : array-like or string
+            The activation function on each layer of our neural network
+            Must be {'sig', 'sm', 'sp', 'relu', 'elu'} or an array-like with
+            any these elements
+    outAct : string
+            The final activation function on our output layer.
+            Must be {'sig', 'sm', 'sp', 'relu', 'elu'}
+    penalties : array-like or string
+            The penalty to be applied on each layer of our neural network
+            Must be {'l1', 'l2', 'l1l2'} or an array-like with any of these
+            elements
+    out : int
+            Number of categories for the neural network to sort into.
+            Think of it sort of like the "length" of the array we wish to sort
+            our data into.
+            In our case, this is 2 (spam/not spam)
+    retModel : boolean
+            Tells the solver whether or not to return the model instead of values.
+            Useful when we want to cast predictions on other data.
+    This class is fully modular, that is, it is compatible with any number of
+    layers, but be forewarned that (naturally) neuronsLayer, activations
+    and penalties must be the same length.
+"""    
 class TensorFlow:
     def __init__(
             self,
@@ -150,6 +179,8 @@ class TensorFlow:
                 raise ValueError('learns or lmbds cannot be array-likes')
             Network = self.form_neural_network(learns, lmbds)
             Network.fit(X_train, z_train, epochs=epochs, batch_size=batchSize, verbose=0)
+            if self.retModel == True:
+                return Network
             scores = Network.evaluate(X_test, z_test, verbose=0)
             storage = Network
             
@@ -158,7 +189,18 @@ class TensorFlow:
             print("Test accuracy: %.3f" % scores[1])
             print()
 
-
+"""
+    The LogisticRegression class
+    
+    inputs : array-like
+        a set of inputs which can then be categorized to some label
+    labels : array-like
+        the aforementioned labels
+    scaled : boolean
+        whether or not we wish to scale our data
+    retModel : boolean
+        whether or not to return the model instead of just a set of values.
+"""
 class LogisticRegression:
     
     def __init__(self,
@@ -195,7 +237,10 @@ class LogisticRegression:
             return model.score(X_test, z_test)
         
     
-    
+"""
+    This class is called by the Multinomial class below and contains both the
+    prediction casting and the accuracy.
+"""    
     
 class NaiveBayes:
     #Using sci-kit learns NaiveBayes as reference, however slimmed down to just include Multinomial (which is most common for spam filtering)
@@ -215,7 +260,12 @@ class NaiveBayes:
                 
         return accuracy_score/len(pred)
     
+"""
+    The Multinomial Naive Bayes class
     
+    alpha : float
+        a parameter. must be greater than (or equal to) 0.
+"""    
 class Multinomial(NaiveBayes):
     
     def __init__(self,
@@ -242,11 +292,22 @@ class Multinomial(NaiveBayes):
             self.lst.append(np.log(count) - np.log(countsum.reshape(-1,1)))
         
         self.lst = np.vstack(self.lst)
-            
+    #log likelihood        
     def loglike(self, X):
         
         return self.prevlogs + np.dot(X, self.lst.T)
+"""
+    The DecisionTree class
     
+    inputs : array-like
+        a set of inputs which can then be categorized to some label
+    labels : array-like
+        the aforementioned labels
+    scaled : boolean
+        whether or not we wish to scale our data
+    retModel : boolean
+        whether or not to return the model instead of just a set of values.
+"""    
 class DecisionTree():
     
     def __init__(self,
@@ -282,7 +343,18 @@ class DecisionTree():
             
             model.fit(X_train, z_train)
             return model.score(X_test, z_test)
+"""
+    The RandomForest class
     
+    inputs : array-like
+        a set of inputs which can then be categorized to some label
+    labels : array-like
+        the aforementioned labels
+    scaled : boolean
+        whether or not we wish to scale our data
+    retModel : boolean
+        whether or not to return the model instead of just a set of values.
+"""    
 class RandomForest():
     
     def __init__(self,
@@ -318,7 +390,18 @@ class RandomForest():
             model.fit(X_train, z_train)
             return model.score(X_test, z_test)
         
-        
+"""
+    The SupportVector class
+    
+    inputs : array-like
+        a set of inputs which can then be categorized to some label
+    labels : array-like
+        the aforementioned labels
+    scaled : boolean
+        whether or not we wish to scale our data
+    retModel : boolean
+        whether or not to return the model instead of just a set of values.
+"""        
 class SupportVector():
     
     def __init__(self,

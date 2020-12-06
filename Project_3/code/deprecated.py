@@ -1,6 +1,12 @@
 import numpy as np
 from sklearn.model_selection import train_test_split
-
+"""
+    The manual non-sklearn version of Logistic Regression.
+    Deprecated because I got very poor results, and with a bunch of exams
+    coming up I didn't have time to do too much troubleshooting for this project.
+    If its important, documentation for this class can be found in the functions.py
+    script from Project 2.
+"""
 class LogisticRegression:  
     def __init__(self, X, z, Type, activation, iters, epochs, penalty, alpha, k, batchSize):
         self.Type = Type.lower()
@@ -258,7 +264,10 @@ class LogisticRegression:
     """    
     def L2(x):
         return 0.5*np.dot(x,x)
-    
+"""
+    The old handler for the manual Logistic Regression.
+    Also deprecated.
+"""    
 def LR(
     inputs,
     labels,

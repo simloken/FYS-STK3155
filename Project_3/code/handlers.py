@@ -3,7 +3,60 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import numpy as np
 import matplotlib.pyplot as plt
-
+"""
+    TF is a function that handles all of our Tensorflow and keras modules.
+    It takes the following inputs:
+        
+    inputs : array-like
+            An array that effectively works as our design matrix
+    labels : array-like
+            The values we wish to map inputs onto
+    Type : string
+            The method or type of solver we wish to use.
+            Must be {'sgd', 'adagrad', 'adam', 'nadam'}
+    nlayers : int or array-like
+            The neurons on a given layer. If nlayers is an array, then a given
+            index i corresponds to the layer i.
+            Must be same length as alayers and pens
+    alayers : string or array-like
+            The activation function for a given layer. If alayer is an array
+            then a given index i corresponds to the layer i.
+            Must be same length as nlayers and pens
+            Must be {'sig', 'sm', 'sp', 'relu', 'elu', 'tanh'}
+    outa : string
+            The final activation function to call.
+            Must be {'sig', 'sm', 'sp', 'relu', 'elu', 'tanh'}
+    pens : string
+            The penalty function of a given layer. If pens is an array then
+            a given index i corresponds to the layer i.
+            Must be same length as nlayers and alayers
+            Must be {'l1', 'l2', 'l1l2'}
+    epochs : integer
+            Times to loop over a number of iterations.
+    batchSize : integer
+            Random points to take. We then use that random data
+            to obtain a gradient.
+    learns : float or array-like
+            Different learning rates to try
+            If learns is a float then so must lmbds, and one_return must be
+            True.
+    lmbds : float or array like
+            Different parameters to try
+            If lmbds is a float then so must learns, and one_return must be
+            True.
+    one_return : boolean
+            Is False by default. Should be True if and only if learns and lmbds
+            are floats.
+    plotting : boolean
+            Is False by default
+            Should be True if and only if learns and lmbds are both array-likes.
+            If True, returns a plot showing the accuracy for the different
+            lmbds and learns values given.  
+    retModel : boolean
+            Is False by default
+            Returns the model instead of accuracy scores. one_return should also
+            be true if this is true
+"""
 def TF(inputs,
        labels,
        Type = 'nadam',
@@ -16,7 +69,6 @@ def TF(inputs,
        learns=np.logspace(-4,-2,3),
        lmbds=np.logspace(-6,-3,12),
        one_return=False,
-       bestFound=False,
        plotting=True,
        retModel=False):
     
@@ -43,6 +95,22 @@ using the {} method""".format(model.Func))
         plt.ylabel('Accuracy [%]')
         plt.show()
         
+        
+"""
+    The LogisticRegression handler
+    
+    inputs : array-like
+        a set of inputs which can then be categorized to some label
+    labels : array-like
+        the aforementioned labels
+    runs : int
+        the number of runs to average over
+    scaled : boolean
+        whether or not we wish to scale our data
+    retModel : boolean
+        whether or not to return the model instead of just a set of values.
+        if set to true, then number of runs is ignored (as it returns the model)
+"""            
 def LR(
        inputs,
        labels,
@@ -59,7 +127,21 @@ def LR(
     else:
         return model.fitter()
 
+"""
+    The NaiveBayes handler
     
+    inputs : array-like
+        a set of inputs which can then be categorized to some label
+    labels : array-like
+        the aforementioned labels
+    alpha : float
+        a parameter. must be greater than (or equal to) 0
+    runs : int
+        the number of runs to average over
+    retModel : boolean
+        whether or not to return the model instead of just a set of values.
+        if set to true, then number of runs is ignored (as it returns the model)
+"""        
 def NB(
     inputs,
     labels,
@@ -82,7 +164,21 @@ def NB(
         model = Multinomial(alpha=0.9)
         model.fitter(X_train, z_train)
         return model
-
+"""
+    The DecisionTree handler
+    
+    inputs : array-like
+        a set of inputs which can then be categorized to some label
+    labels : array-like
+        the aforementioned labels
+    runs : int
+        the number of runs to average over
+    scaled : boolean
+        whether or not we wish to scale our data
+    retModel : boolean
+        whether or not to return the model instead of just a set of values.
+        if set to true, then number of runs is ignored (as it returns the model)
+"""    
 def DT(
        inputs,
        labels,
@@ -98,7 +194,21 @@ def DT(
         return np.mean(score), runs
     else:
         return model.fitter()
-
+"""
+    The RandomForest handler
+    
+    inputs : array-like
+        a set of inputs which can then be categorized to some label
+    labels : array-like
+        the aforementioned labels
+    runs : int
+        the number of runs to average over
+    scaled : boolean
+        whether or not we wish to scale our data
+    retModel : boolean
+        whether or not to return the model instead of just a set of values.
+        if set to true, then number of runs is ignored (as it returns the model)
+"""    
 def RF(
        inputs,
        labels,
@@ -115,7 +225,21 @@ def RF(
     else:
         return model.fitter()
     
-
+"""
+    The SupportVector handler
+    
+    inputs : array-like
+        a set of inputs which can then be categorized to some label
+    labels : array-like
+        the aforementioned labels
+    runs : int
+        the number of runs to average over
+    scaled : boolean
+        whether or not we wish to scale our data
+    retModel : boolean
+        whether or not to return the model instead of just a set of values.
+        if set to true, then number of runs is ignored (as it returns the model)
+"""        
 def SV(
        inputs,
        labels,
@@ -133,7 +257,20 @@ def SV(
         
         return model.fitter()
 
-
+"""
+    Our function for testing and casting predictions based on a set of input
+    strings for all different methods
+    
+    cats : array-like
+        an array of (y x 57), where y is the number of strings. Run the strings through
+        string2cats before they go through here.
+    inputs : array-like
+        a set of inputs which can then be categorized to some label
+    labels : array-like
+        the aforementioned labels
+    runs : int
+        the number of runs to average over.
+"""
 def testAgainstStrings(
         cats,
         inputs,

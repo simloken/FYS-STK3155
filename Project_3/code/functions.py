@@ -1,6 +1,12 @@
 import pandas
 import numpy as np
-
+"""
+    A simple function for reading and generating an array from the spam.csv data
+    
+    shuffle : boolean
+        shuffles the data if True
+    
+"""
 def generateSpambaseData(shuffle=False):
     
     dataFile = pandas.read_csv('../data/spam.csv')
@@ -34,7 +40,17 @@ def generateSpambaseData(shuffle=False):
     inputs = np.delete(inputs, len(inputs)-1, 0) #from our 
     inputs = np.transpose(inputs) #input array
     return inputs, labels
-
+"""
+    A function for transforming a string into a series of floats in an array in
+    accordance with the attributes of the Spambase dataset
+    
+    inputString : string
+        Our input string
+    tol : float
+        The tolerance when looking for the likeness of two words. With the default
+        value of .75, if a word is 75% like one of the attribute words, it will be
+        counted. Can be tuned according if needed for a string.
+"""
 def string2cats(inputString, tol=0.75):
     #based on the attribute information given at http://archive.ics.uci.edu/ml/datasets/Spambase/
     #takes a given string and returns it as if it was part of our dataset
@@ -115,18 +131,7 @@ def string2cats(inputString, tol=0.75):
     output = np.hstack((woc, soc, uppers)).ravel()
     return output
     
-"""
-    The mean squared error between a true array y and a predictory array yt
-"""    
-def MSE(y,yt):
-    return np.sum((y-yt)**2)/np.size(yt)
-
-"""
-    The R2 score between a true array y and a predictory array yt
-"""  
-def R2(y,yt):
-    return 1 - np.sum((y-yt) ** 2) / np.sum((y - np.mean(y)) ** 2) 
-
+ 
 
 def logsummer(arr, axis=None):
     #not actually used, from an old iteration of MN Naive Bayes
@@ -143,7 +148,10 @@ def logsummer(arr, axis=None):
     
     return out
 
+
 def findSVParams(inputs, labels):
+    #this is also not used, but it was a method for finding the best parameters
+    #for SVC, deprecated because I moved to LinearSVC which was a lot easier to tune.
     from sklearn.svm import SVC
     from sklearn.model_selection import GridSearchCV
     from sklearn.model_selection import train_test_split
