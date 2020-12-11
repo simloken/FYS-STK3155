@@ -252,7 +252,8 @@ which will be an indicator of how well our model scored.
 We're going to be basing our classification system off of the Spambase dataset \cite{data}, courtesy of UCI. The dataset is built up as a series of floats displaying the frequency of a given word in an e-mail, in addition to given special characters and upper case letter usage. Additionally, the data set comes pre-labeled as either spam or not spam. For a full explanation of each attribute, please refer to the UCI data set page for their documentation.\newline
 We can then perform a split on our initial data set and train our models discussed above in the theory section. After this, we can (as typical of a classification problem) run our remaining test data through an accuracy function to assess the accuracy of our model. \newline
 Additionally, as we wish to employ the trained method as a spam filter, we will also need to create a function that transforms a given string (e-mail) into a series of attributes akin to our original data set. We can then use our generated set of attributes to cast a binary prediction as to whether or not it is spam, and compare it against a control to compare the correct prediction rate of our different methods. \newline
-As this would've been handled server side in a real life scenario, run times here are a non-issue and will therefore not be taken into consideration when weighing methods against each other. That being said, had this instead been a spam filter for an instant messaging service, we would've had to account for run times.
+As this would've been handled server side in a real life scenario, run times here are a non-issue and will therefore not be taken into consideration when weighing methods against each other. That being said, had this instead been a spam filter for an instant messaging service, we would've had to account for run times. \newline
+It is also worth noting that we're going to be using Scikit and Tensorflows implementations for the most part, to read more about these please refer to appendix \ref{tensorf}
 \section{Results}
 First, let us examine the accuracy score of our different methods.
 \newline After having sufficiently tuned all parameters of our algorithms, we calculate the accuracy over an average 10 runs to be:
@@ -359,4 +360,11 @@ What are hyperplanes? Heres a quick rundown:
 In a technical geometric sense, it is a subspace of dimension $n-1$ in some space $V$. $V$ can be Euclidian space, affine space, a vector space or a projective space. \newline
 Note that for in cases where the space $V$ is a vector space (our case), then our hyperplane is a linear subspace.
 \newline Hyperplanes are a very important tool when working with Support Vector Machines \cite{hplanes}.
+\subsection{Scikit and Tensorflow - Information and benefits} \label{tensorf}
+\subsubsection*{Scikit and Tensorflow}
+Scikit-learn is a machine learning library with a wide range of machine learning methods, ranging from classification (what we're using), regression and even clustering, using many algorithms like the ones we have discussed above, such as Support Vector machines and Random Forests. Scikit heavily used NumPy, which is of course written in C.
+\subsubsection*{Tensorflow}
+Tensorflow is also a library built for machine learning, but it has a particular focus on deep neural networks. Originally developed by Google for internal usage, it has since been made publicly available. It is open source, and is continuously being developed and has many practical and "high-end" uses, such as deep learning computer graphics or image captioning.
+\subsubsection*{Why use these methods as opposed to our own}
+The primary benefit to using these methods as opposed to creating our own is the relatively nice ease of usage. These models are very much "plug-and-play", for lack of a better term, and allow for minimal user input, outside of select parameters. This of course is very beneficial, since it allows us to spend more time on our project as opposed to bug fixes, especially in such a hectic time (exams, etc.)
 \end{document}
